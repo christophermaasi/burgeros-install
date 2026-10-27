@@ -73,10 +73,12 @@ def say(text):
 
 def parse_args(argv):
     options = {'mode': 'install', 'restore': None, 'continue': False, 'no_chain': False,
-               'license_file': None, 'domain': None, 'email': None, 'from_file': None,
+               'license_file': None, 'license': None, 'domain': None, 'email': None, 'from_file': None,
                'stand': False, 'explain_select': None, 'installed': None}
     flags = {'--continue': 'continue', '--no-chain': 'no_chain', '--stand': 'stand'}
-    values = {'--license-file': 'license_file', '--domain': 'domain', '--email': 'email',
+    # --license — сам блок прямо в команде: одна команда из письма покупателю,
+    # без вопроса о блоке (решение владельца 24.10.2026).
+    values = {'--license-file': 'license_file', '--license': 'license', '--domain': 'domain', '--email': 'email',
               '--from-file': 'from_file', '--installed': 'installed'}
     index = 0
     while index < len(argv):
@@ -526,7 +528,7 @@ def collect_answers(options):
         if not os.path.exists(license_file):
             raise Refused('На сервере нет лицензионного блока: /opt/burgeros/shared/license')
         return open(license_file, encoding='utf-8').read(), None, None
-    block = open(options['license_file'], encoding='utf-8').read() if options['license_file'] else None
+    block = options['license'] or (open(options['license_file'], encoding='utf-8').read() if options['license_file'] else None)
     domain, email = options['domain'], options['email']
     if block is None:
         block = ask('Вставьте лицензионный блок (одна строка BURGEROS-LICENSE-1:…) и нажмите Enter:\n')
